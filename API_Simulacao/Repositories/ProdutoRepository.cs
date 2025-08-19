@@ -1,8 +1,6 @@
-﻿using API_Simulacao.Datasources;
-using API_Simulacao.Models;
+﻿using API_Simulacao.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using System.Data;
 
 namespace API_Simulacao.Repository
