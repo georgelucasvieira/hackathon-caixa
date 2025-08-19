@@ -1,12 +1,11 @@
-﻿namespace API_Simulacao.Services
-{
-    public class SimulacaoService
-    {
-        private readonly IHttpClientFactory _httpClientFactory;
+﻿namespace API_Simulacao.Services;
 
-        public SimulacaoService(IHttpClientFactory httpClientFactory)
-        {
-            _httpClientFactory = httpClientFactory;
-        }
+public class SimulacaoService
+{
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public SimulacaoService(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
     }
 }
