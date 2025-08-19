@@ -1,6 +1,5 @@
-﻿namespace API_Simulacao.Services
+﻿namespace API_Simulacao.Services;
+
+public class CalcularTabelaPriceService
 {
-    public class CalcularTabelaPriceService
-    {
-    }
 }

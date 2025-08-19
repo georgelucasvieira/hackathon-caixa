@@ -1,5 +1,3 @@
-using Dapper;
-
 namespace API_Simulacao.Models;
 public class Produto
 {

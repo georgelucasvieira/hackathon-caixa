@@ -1,4 +1,4 @@
-namespace API_Simulacao.DTOs;
+namespace API_Simulacao.DTOs.Simulacao;
 
 //public class EntradaSimulacaoDTO
 //{
@@ -6,4 +6,4 @@ namespace API_Simulacao.DTOs;
 //    public int Prazo { get; set; }
 //}
 
-public record EntradaSimulacaoDTO(decimal ValorDesejado, int Prazo);
+public record EntradaSimulacaoDTO(decimal valorDesejado, int prazo);
