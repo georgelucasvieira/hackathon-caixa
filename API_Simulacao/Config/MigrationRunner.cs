@@ -1,7 +1,7 @@
 using System.Reflection;
 using DbUp;
 
-namespace API_Simulacao.Repositories;
+namespace API_Simulacao.Config;
 
 public static class MigrationRunner
 {
