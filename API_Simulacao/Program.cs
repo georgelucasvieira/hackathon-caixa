@@ -1,5 +1,4 @@
 using API_Simulacao.Repositories;
-using API_Simulacao.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +10,14 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<ProdutoRepository>();
 builder.Services.AddScoped<SimulacaoRepository>();
+
+MigrationRunner.RunMigrations(
+    builder.Configuration.GetConnectionString("DbProduto")!,
+    "Migrations.Produto");
+
+MigrationRunner.RunMigrations(
+    builder.Configuration.GetConnectionString("DbSimulacao")!,
+    "Migrations.Simulacao");
 
 var app = builder.Build();
 

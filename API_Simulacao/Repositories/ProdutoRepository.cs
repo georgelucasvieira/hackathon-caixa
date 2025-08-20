@@ -1,9 +1,12 @@
 ﻿using API_Simulacao.Models;
 using Dapper;
+using DbUp;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Reflection;
 
-namespace API_Simulacao.Repository;
+
+namespace API_Simulacao.Repositories;
 
 public class ProdutoRepository
 {

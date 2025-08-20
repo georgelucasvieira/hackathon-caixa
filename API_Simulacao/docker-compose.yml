@@ -1,0 +1,24 @@
+version: '3.9'
+services:
+  sqlserver-produto:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-produto
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./sql/produto:/docker-entrypoint-initdb.d
+
+  sqlserver-simulacao:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-simulacao
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1434:1433"
+    volumes:
+      - ./sql/simulacao:/docker-entrypoint-initdb.d
+

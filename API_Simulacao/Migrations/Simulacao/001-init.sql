@@ -1,0 +1,12 @@
+CREATE DATABASE DbSimulacao;
+GO
+
+USE DbSimulacao;
+GO
+
+CREATE TABLE Simulacao (
+    Id INT IDENTITY PRIMARY KEY,
+    Descricao NVARCHAR(200) NOT NULL,
+    DataCriacao DATETIME NOT NULL DEFAULT GETDATE()
+);
+GO
