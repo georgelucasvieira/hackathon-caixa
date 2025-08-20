@@ -6,4 +6,4 @@
 
 //    public object? Dados { get; set; } = dados;
 //}
-public record DetalheEventoDto(string situacao, object? dados);
+public record DetalheEventoDTO(string situacao, object? dados);

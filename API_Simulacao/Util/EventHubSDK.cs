@@ -27,7 +27,7 @@
             await _producerClient.SendAsync(eventBatch);
         }
 
-        public async Task EnviaEventoProc(EventHubDto evento, string cloudRoleName)
+        public async Task EnviaEventoProc(EventHubDTO evento, string cloudRoleName)
         {
             evento.Aplicacao = cloudRoleName;
             var message = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(evento));

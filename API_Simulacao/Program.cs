@@ -22,7 +22,7 @@ app.MapPost("/simulacao", async (ProdutoRepository repo) =>
     var produtos = await repo.GetAllAsync();
     return Results.Ok(produtos);
 })
-.WithName("produtos")
+.WithName("Simulacao")
 .WithOpenApi();
 
 app.Run();

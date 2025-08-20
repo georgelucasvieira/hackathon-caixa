@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using System.Data;
 
 namespace API_Simulacao.Repositories;
@@ -11,6 +10,6 @@ public class SimulacaoRepository
     public SimulacaoRepository(IConfiguration configuration) 
     { 
         _configuration = configuration;
-        _db = new SqlConnection(_configuration.GetConnectionString("ProdutoDb"))
+        _db = new SqlConnection(_configuration.GetConnectionString("SimulacaoDb"));
     }
 }
