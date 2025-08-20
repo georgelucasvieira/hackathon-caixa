@@ -8,9 +8,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
-builder.Services.AddScoped<ProdutoRepository>();
-builder.Services.AddScoped<SimulacaoRepository>();
-
 MigrationRunner.RunMigrations(
     builder.Configuration.GetConnectionString("DbProduto")!,
     "Migrations.Produto");
@@ -18,6 +15,9 @@ MigrationRunner.RunMigrations(
 MigrationRunner.RunMigrations(
     builder.Configuration.GetConnectionString("DbSimulacao")!,
     "Migrations.Simulacao");
+
+builder.Services.AddScoped<ProdutoRepository>();
+builder.Services.AddScoped<SimulacaoRepository>();
 
 var app = builder.Build();
 

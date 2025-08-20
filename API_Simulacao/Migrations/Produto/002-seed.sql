@@ -73,7 +73,7 @@ INSERT INTO
     )
 VALUES (
         4,
-        'Produto 4' 'Produto 4',
+        'Produto 4',
         0.015100000,
         96,
         null,
