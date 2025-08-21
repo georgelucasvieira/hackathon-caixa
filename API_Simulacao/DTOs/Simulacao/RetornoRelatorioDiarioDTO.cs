@@ -1,0 +1,1 @@
+namespace API_Simulacao.DTOs.Simulacao;

@@ -40,7 +40,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapPost("/simulacao", async (ProdutoRepository produtoRepo, EntradaSimulacaoDTO request) =>
+app.MapPost("/simular", async (ProdutoRepository produtoRepo, EntradaSimulacaoDTO request) =>
 {
     var produtos = await produtoRepo.GetByValorEPrazoAsync(request.valorDesejado, request.prazo);
     
@@ -53,7 +53,7 @@ app.MapPost("/simulacao", async (ProdutoRepository produtoRepo, EntradaSimulacao
 .WithName("FazerSimulacao")
 .WithOpenApi();
 
-app.MapGet("/simulacao", async (SimulacaoRepository simulacaoRepo, int? pagina, int? limite) =>
+app.MapGet("/simulacao/listar", async (SimulacaoRepository simulacaoRepo, int? pagina, int? limite) =>
 {
     var simulacoes = await simulacaoRepo.GetAllPaginatedAsync(pagina ?? 1, limite ?? 10);
     return Results.Ok(simulacoes);
@@ -61,6 +61,30 @@ app.MapGet("/simulacao", async (SimulacaoRepository simulacaoRepo, int? pagina, 
 })
 .WithName("ObterSimulacoes")
 .WithOpenApi();
+
+//bonus/opcional
+app.MapGet("/simulacao/detalhe/{id}", async (int id) =>
+{
+    return Results.Ok();
+})
+.WithName("ObterDetalheSimulacao")
+.WithOpenApi();
+
+app.MapGet("/simulacao/relatorioDiario", async (DateTime dataReferencia) =>
+{
+    Results.Ok();
+})
+.WithName("ObterRelatorio")
+.WithOpenApi();
+
+app.MapGet("/healthcheck/telemetria", async (DateTime dataReferencia) =>
+{
+    Results.Ok();
+})
+.WithName("Telemetria")
+.WithOpenApi();
+
+
 
 app.Run();
 
