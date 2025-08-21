@@ -40,9 +40,9 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapPost("/simulacao", async (ProdutoRepository repo, EntradaSimulacaoDTO request) =>
+app.MapPost("/simulacao", async (ProdutoRepository produtoRepo, EntradaSimulacaoDTO request) =>
 {
-    var produtos = await repo.GetByValorEPrazoAsync(request.valorDesejado, request.prazo);
+    var produtos = await produtoRepo.GetByValorEPrazoAsync(request.valorDesejado, request.prazo);
     
     var response = new RetornoSimulacaoDTO();
     response.idSimulacao = 123123;
@@ -53,9 +53,9 @@ app.MapPost("/simulacao", async (ProdutoRepository repo, EntradaSimulacaoDTO req
 .WithName("FazerSimulacao")
 .WithOpenApi();
 
-app.MapGet("/simulacao", async (SimulacaoRepository repo, int? pagina, int? limite) =>
+app.MapGet("/simulacao", async (SimulacaoRepository simulacaoRepo, int? pagina, int? limite) =>
 {
-    var simulacoes = await repo.GetAllPaginatedAsync(pagina ?? 1, limite ?? 10);
+    var simulacoes = await simulacaoRepo.GetAllPaginatedAsync(pagina ?? 1, limite ?? 10);
     return Results.Ok(simulacoes);
 })
 .WithName("ObterSimulacoes")

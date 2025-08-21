@@ -1,4 +1,5 @@
-﻿using API_Simulacao.Models;
+﻿using API_Simulacao.DTOs;
+using API_Simulacao.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -16,28 +17,31 @@ public class SimulacaoRepository
     }
 
 
-    public async Task<List<Simulacao>> GetAllPaginatedAsync(int pageNumber, int pageSize)
+    public async Task<RetornoPaginadoDTO<Simulacao>> GetAllPaginatedAsync(int pageNumber, int pageSize)
     {
-        var sql = @"
-        WITH PaginatedSimulacoes AS (
-            SELECT *
-            FROM SIMULACAO
-            ORDER BY ID
-            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
-        )
-        SELECT 
-            s.ID as Id, s.TIPO as Tipo, s.DATA_CRIACAO AS DataCriacao,
-            p.ID as ParcelaId, p.SIMULACAO_ID as SimulacaoId, p.NUMERO as Numero,
-            p.VALOR_AMORTIZACAO AS ValorAmortizacao, p.VALOR_JUROS AS ValorJuros, p.VALOR_PRESTACAO AS ValorPrestacao
-        FROM PaginatedSimulacoes s
-        LEFT JOIN PARCELAS p ON s.ID = p.SIMULACAO_ID
-        ORDER BY s.ID, p.NUMERO;
+        var countSql = "SELECT COUNT(*) FROM SIMULACAO";
+        var totalRegistros = await _db.ExecuteScalarAsync<int>(countSql);
+
+        var dataSql = @"
+            WITH PaginatedSimulacoes AS (
+                SELECT *
+                FROM SIMULACAO
+                ORDER BY ID
+                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
+            )
+            SELECT 
+                s.ID as Id, s.TIPO as Tipo, s.DATA_CRIACAO AS DataCriacao,
+                p.ID as ParcelaId, p.SIMULACAO_ID as SimulacaoId, p.NUMERO as Numero,
+                p.VALOR_AMORTIZACAO AS ValorAmortizacao, p.VALOR_JUROS AS ValorJuros, p.VALOR_PRESTACAO AS ValorPrestacao
+            FROM PaginatedSimulacoes s
+            LEFT JOIN PARCELAS p ON s.ID = p.SIMULACAO_ID
+            ORDER BY s.ID, p.NUMERO;
         ";
 
         var simulacoes = new Dictionary<int, Simulacao>();
 
         await _db.QueryAsync<Simulacao, Parcela, Simulacao>(
-            sql,
+            dataSql,
             (simulacao, parcela) =>
             {
                 if (!simulacoes.TryGetValue(simulacao.Id, out var existingSimulacao))
@@ -59,7 +63,14 @@ public class SimulacaoRepository
             },
             splitOn: "ParcelaId"
         );
-        
-        return simulacoes.Values.ToList();
+
+        return new RetornoPaginadoDTO<Simulacao>
+        {
+            pagina = pageNumber,
+            qtdRegistros = totalRegistros,
+            qtdRegistrosPagina = pageSize,
+            registros = simulacoes.Values.ToList()
+        };
     }
+
 }
