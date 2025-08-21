@@ -57,6 +57,7 @@ app.MapGet("/simulacao", async (SimulacaoRepository simulacaoRepo, int? pagina, 
 {
     var simulacoes = await simulacaoRepo.GetAllPaginatedAsync(pagina ?? 1, limite ?? 10);
     return Results.Ok(simulacoes);
+
 })
 .WithName("ObterSimulacoes")
 .WithOpenApi();

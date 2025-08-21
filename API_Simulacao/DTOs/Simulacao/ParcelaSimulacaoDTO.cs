@@ -7,4 +7,9 @@ public class ParcelaSimulacaoDTO
     public decimal valorJuros { get; set; }
     public decimal valorPrestacao { get; set; }
 
+
+    public override string ToString()
+    {      
+        return $"Parcela {numero}: Amortização = {valorAmortizacao:C}, Juros = {valorJuros:C}, Prestação = {valorPrestacao:C}";
+    }
 }
