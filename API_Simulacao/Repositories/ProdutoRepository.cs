@@ -16,7 +16,7 @@ public class ProdutoRepository
     public ProdutoRepository(IConfiguration configuration)
     {
         _configuration = configuration;
-        _db = new SqlConnection(_configuration.GetConnectionString("ProdutoDb"));
+        _db = new SqlConnection(_configuration.GetConnectionString("DbProduto"));
     }
 
     //public async Task<IEnumerable<Produto>> GetAllAsync()

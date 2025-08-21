@@ -8,6 +8,8 @@ namespace API_Simulacao.Config
         public static void Configure()
         {
             ProdutoDapperMapping.Map();
+            SimulacaoDapperMapping.Map();
+            ParcelasDapperMapping.Map();
         }
     }
 
@@ -34,4 +36,47 @@ namespace API_Simulacao.Config
             _ => columnName
         };
     }
+
+    public static class SimulacaoDapperMapping
+    {
+        public static void Map()
+        {
+            SqlMapper.SetTypeMap(typeof(Produto), new CustomPropertyTypeMap(
+                typeof(Produto),
+                (type, columnName) => type.GetProperties().FirstOrDefault(
+                    prop => prop.Name.Equals(MapColumnToProperty(columnName), StringComparison.OrdinalIgnoreCase))
+            ));
+        }
+
+        private static string MapColumnToProperty(string columnName) => columnName switch
+        {
+            "ID" => "Id",
+            "TIPO" => "Tipo",
+            "DATA_CRIACAO" => "DataCriacao",
+            _ => columnName
+        };
+    }
+    
+    public static class ParcelasDapperMapping
+    {
+        public static void Map()
+        {
+            SqlMapper.SetTypeMap(typeof(Produto), new CustomPropertyTypeMap(
+                typeof(Produto),
+                (type, columnName) => type.GetProperties().FirstOrDefault(
+                    prop => prop.Name.Equals(MapColumnToProperty(columnName), StringComparison.OrdinalIgnoreCase))
+            ));
+        }
+
+        private static string MapColumnToProperty(string columnName) => columnName switch
+        {
+            "ID" => "Id",
+            "NUMERO" => "Numero",
+            "VALOR_AMORTIZACAO" => "ValorAmortizacao",
+            "VALOR_JUROS" => "ValorJuros",
+            "VALOR_PRESTACAO" => "ValorPrestacao",
+            _ => columnName
+        };
+    }
+
 }

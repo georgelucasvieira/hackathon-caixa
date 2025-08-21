@@ -12,19 +12,26 @@ public class SimulacaoRepository
     public SimulacaoRepository(IConfiguration configuration) 
     { 
         _configuration = configuration;
-        _db = new SqlConnection(_configuration.GetConnectionString("SimulacaoDb"));
+        _db = new SqlConnection(_configuration.GetConnectionString("DbSimulacao"));
     }
 
 
     public async Task<List<Simulacao>> GetAllPaginatedAsync(int pageNumber, int pageSize)
     {
         var sql = @"
-            SELECT s.Id, s.Nome, s.ValorTotal,
-                   p.Id, p.SimulacaoId, p.NumeroParcela, p.ValorParcela
-            FROM Simulacao s
-            LEFT JOIN Parcelas p ON s.Id = p.SimulacaoId
-            ORDER BY s.Id
-            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+        WITH PaginatedSimulacoes AS (
+            SELECT *
+            FROM SIMULACAO
+            ORDER BY ID
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
+        )
+        SELECT 
+            s.ID as Id, s.TIPO as Tipo, s.DATA_CRIACAO AS DataCriacao,
+            p.ID as ParcelaId, p.SIMULACAO_ID as SimulacaoId, p.NUMERO as Numero,
+            p.VALOR_AMORTIZACAO AS ValorAmortizacao, p.VALOR_JUROS AS ValorJuros, p.VALOR_PRESTACAO AS ValorPrestacao
+        FROM PaginatedSimulacoes s
+        LEFT JOIN PARCELAS p ON s.ID = p.SIMULACAO_ID
+        ORDER BY s.ID, p.NUMERO;
         ";
 
         var simulacoes = new Dictionary<int, Simulacao>();
@@ -50,10 +57,9 @@ public class SimulacaoRepository
                 Offset = (pageNumber - 1) * pageSize,
                 PageSize = pageSize
             },
-            splitOn: "Id"
+            splitOn: "ParcelaId"
         );
-
+        
         return simulacoes.Values.ToList();
     }
-
 }

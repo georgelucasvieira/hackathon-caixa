@@ -1,6 +1,9 @@
+using System.Reflection;
 using API_Simulacao.Config;
 using API_Simulacao.DTOs.Simulacao;
 using API_Simulacao.Repositories;
+using DbUp;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,13 +13,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
-MigrationRunner.RunMigrations(
-    builder.Configuration.GetConnectionString("DbProduto")!,
-    "Migrations.Produto");
+string csProduto = Env("CONN_STR_PRODUTO");
+string csSimulacao = Env("CONN_STR_SIMULACAO");
 
-MigrationRunner.RunMigrations(
-    builder.Configuration.GetConnectionString("DbSimulacao")!,
-    "Migrations.Simulacao");
+await CreateDatabase();
+
+// RunMigration(
+//     csProduto,
+//     filter: name => name.Contains("Migrations.Produto.", StringComparison.OrdinalIgnoreCase),
+//     logPrefix: "[db_produto/]"
+// );
+
+RunMigration(
+    csSimulacao,
+    filter: name => name.Contains("Migrations.Simulacao.", StringComparison.OrdinalIgnoreCase),
+    logPrefix: "[db_simulacao/]"
+);
 
 builder.Services.AddScoped<ProdutoRepository>();
 builder.Services.AddScoped<SimulacaoRepository>();
@@ -28,9 +40,9 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapPost("/simulacao", async (ProdutoRepository repo) =>
+app.MapPost("/simulacao", async (ProdutoRepository repo, EntradaSimulacaoDTO request) =>
 {
-    var produtos = await repo.GetAllAsync();
+    var produtos = await repo.GetByValorEPrazoAsync(request.valorDesejado, request.prazo);
     
     var response = new RetornoSimulacaoDTO();
     response.idSimulacao = 123123;
@@ -38,7 +50,81 @@ app.MapPost("/simulacao", async (ProdutoRepository repo) =>
 
     return Results.Ok(produtos);
 })
-.WithName("Simulacao")
+.WithName("FazerSimulacao")
+.WithOpenApi();
+
+app.MapGet("/simulacao", async (SimulacaoRepository repo, int? pagina, int? limite) =>
+{
+    var simulacoes = await repo.GetAllPaginatedAsync(pagina ?? 1, limite ?? 10);
+    return Results.Ok(simulacoes);
+})
+.WithName("ObterSimulacoes")
 .WithOpenApi();
 
 app.Run();
+
+static string Env(string key) =>
+    Environment.GetEnvironmentVariable(key)
+    ?? throw new InvalidOperationException($"{key} não configurada.");
+
+static async Task WaitForSqlAsync(string connStr, string name, int retries = 30)
+{
+    Console.WriteLine($"Waiting {name}...");
+    for (var i = 1; i <= retries; i++)
+    {
+        try
+        {
+            await using var conn = new SqlConnection(connStr);
+            await conn.OpenAsync();
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT 1";
+            await cmd.ExecuteScalarAsync();
+            Console.WriteLine($"[{name}] pronto.");
+            return;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Aguardando {name}... tent {i}/{retries} ({ex.Message})");
+            await Task.Delay(TimeSpan.FromSeconds(2));
+        }
+    }
+    throw new Exception($"Timeout aguardando {name}");
+}
+
+static void RunMigration(string connectionString, Func<string, bool> filter, string logPrefix)
+{
+    Console.WriteLine($"{logPrefix} Rodando migrations...");
+    var upgrader =
+        DeployChanges.To
+            .SqlDatabase(connectionString)
+            .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), filter)
+            .LogToConsole()
+            .Build();
+
+    var result = upgrader.PerformUpgrade();
+    if (!result.Successful)
+        throw result.Error!;
+    Console.WriteLine($"{logPrefix} Migrations finalizado");
+}
+
+static async Task CreateDatabase()
+{
+    string connStrProdutoMaster = Env("CONN_STR_PRODUTO_MASTER");
+    string connStrSimulacaoMaster = Env("CONN_STR_SIMULACAO_MASTER");
+
+    // await WaitForSqlAsync(connStrProdutoMaster, "sqlserver-produto-master");
+    await WaitForSqlAsync(connStrSimulacaoMaster, "sqlserver-simulacao-master");
+
+    // RunMigration(
+    //     connStrProdutoMaster,
+    //     filter: name => name.Contains("Migrations.Produto.000_", StringComparison.OrdinalIgnoreCase),
+    //     logPrefix: "[db_produto/master]"
+    // );
+
+    RunMigration(
+        connStrSimulacaoMaster,
+        filter: name => name.Contains("Migrations.Simulacao.000_", StringComparison.OrdinalIgnoreCase),
+        logPrefix: "[db_simulacao/master]"
+    );
+
+}

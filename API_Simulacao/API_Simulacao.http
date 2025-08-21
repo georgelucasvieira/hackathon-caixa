@@ -1,6 +1,4 @@
-@API_Simulacao_HostAddress = http://localhost:5198
+@API_Simulacao_HostAddress = http://localhost:8080
 
-GET {{API_Simulacao_HostAddress}}/weatherforecast/
+GET {{API_Simulacao_HostAddress}}/simulacao?pagina=1&limite=2
 Accept: application/json
-
-###

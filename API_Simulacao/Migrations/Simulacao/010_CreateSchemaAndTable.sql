@@ -1,0 +1,32 @@
+USE db_simulacao;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'db_simulacao')
+    EXEC('CREATE SCHEMA db_simulacao');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables t JOIN sys.schemas s ON s.schema_id=t.schema_id
+               WHERE t.name='SIMULACAO' AND s.name='db_simulacao')
+BEGIN
+CREATE TABLE SIMULACAO (
+    ID INT IDENTITY PRIMARY KEY,
+    TIPO NVARCHAR(5) NOT NULL,
+    DATA_CRIACAO DATETIME NOT NULL DEFAULT GETDATE()
+);
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables t JOIN sys.schemas s ON s.schema_id=t.schema_id
+               WHERE t.name='PARCELAS' AND s.name='db_simulacao')
+BEGIN
+CREATE TABLE PARCELAS (
+    ID INT IDENTITY PRIMARY KEY,
+    SIMULACAO_ID INT,
+    NUMERO INT,
+    VALOR_AMORTIZACAO DECIMAL(18,2),
+    VALOR_JUROS DECIMAL(18,2),
+    VALOR_PRESTACAO DECIMAL(18,2),
+    FOREIGN KEY (SIMULACAO_ID) REFERENCES SIMULACAO(ID)
+);
+END
+GO

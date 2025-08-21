@@ -2,7 +2,7 @@
 {
     public class Parcela
     {
-        public int Id { get; set; }
+        public int ParcelaId { get; set; }
         public int Numero { get; set; }
         public decimal ValorAmortizacao { get; set; }
         public decimal ValorJuros { get; set; }
