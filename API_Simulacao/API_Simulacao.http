@@ -1,4 +1,10 @@
-@API_Simulacao_HostAddress = http://localhost:8080
+@API_Simulacao_HostAddress = http://localhost:5198
 
-GET {{API_Simulacao_HostAddress}}/simulacao?pagina=1&limite=2
-Accept: application/json
+POST {{API_Simulacao_HostAddress}}/simular HTTP/1.1
+content-type: application/json
+
+{
+    "valorDesejado": 10000.00,
+    "prazo": 24
+}
+

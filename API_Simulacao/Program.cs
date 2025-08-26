@@ -1,8 +1,8 @@
 using System.Data.Common;
 using System.Reflection;
-using API_Simulacao.Config;
 using API_Simulacao.DTOs.Simulacao;
 using API_Simulacao.Repositories;
+using API_Simulacao.Services;
 using DbUp;
 using Microsoft.Data.SqlClient;
 using Npgsql;
@@ -29,23 +29,17 @@ RunMigration(
 
 builder.Services.AddScoped<ProdutoRepository>();
 builder.Services.AddScoped<SimulacaoRepository>();
-
-DapperMappingConfig.Configure();
+builder.Services.AddScoped<SimulacaoService>();
 
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapPost("/simular", async (ProdutoRepository produtoRepo, EntradaSimulacaoDTO request) =>
+app.MapPost("/simular", async (ProdutoRepository produtoRepo, SimulacaoService simulacaoService, EntradaSimulacaoDTO request) =>
 {
-    var produtos = await produtoRepo.GetByValorEPrazoAsync(request.valorDesejado, request.prazo);
-    
-    var response = new RetornoSimulacaoDTO();
-    response.idSimulacao = 123123;
-    //response.taxaJuros
-
-    return Results.Ok(produtos);
+    var response = await simulacaoService.RealizarSimulacao(request);
+    return Results.Ok(response);
 })
 .WithName("FazerSimulacao")
 .WithOpenApi();

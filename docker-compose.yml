@@ -6,8 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: api-simulacao
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      CONN_STR_SIMULACAO: "Host=postgres-simulacao;Port=5432;Database=db_simulacao;Username=sa;Password=${SA_PASSWORD};"
+      ASPNETCORE_ENVIRONMENT: Docker
     ports:
       - "8080:8080"
     depends_on:

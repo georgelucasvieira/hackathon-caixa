@@ -18,25 +18,34 @@ public class SimulacaoService
 
     public async Task<RetornoSimulacaoDTO> RealizarSimulacao(EntradaSimulacaoDTO entradaSimulacaoDto)
     {
-        Produto produto = await _produtoRepository.GetByValorEPrazoAsync(
+        Produto? produto = await _produtoRepository.GetByValorEPrazoAsync(
             entradaSimulacaoDto.valorDesejado, entradaSimulacaoDto.prazo);
+        if (produto is null)
+            return new RetornoSimulacaoDTO();
+
+        decimal valorDesejado = entradaSimulacaoDto.valorDesejado;
+        int prazo = entradaSimulacaoDto.prazo;
+        decimal taxaJuros = produto.PcTaxaJuros;
 
         var response = new RetornoSimulacaoDTO();
         if (produto is null)
             return response;
 
-        var resultadosSimulacoes = new List<ResultadoSimulacaoDTO>();
-        resultadosSimulacoes.Add(new ResultadoSimulacaoDTO
+        var resultadosSimulacoes = new List<ResultadoSimulacaoDTO>
         {
-            tipo = TipoSimulacao.SAC,
-            parcelas = CalcularParcelasTabelaSAC()
+            new ResultadoSimulacaoDTO
+            {
+                tipo = TipoSimulacao.SAC,
+                parcelas = CalcularParcelasTabelaSAC(valorDesejado, prazo, taxaJuros)
 
-        });
-        resultadosSimulacoes.Add(new ResultadoSimulacaoDTO
-        {
-            tipo = TipoSimulacao.PRICE,
-            parcelas = CalcularParcelasTabelaPrice()
-        });
+
+            },
+            new ResultadoSimulacaoDTO
+            {
+                tipo = TipoSimulacao.PRICE,
+                parcelas = CalcularParcelasTabelaPrice(valorDesejado, prazo, taxaJuros)
+            }
+        };
 
         // TODO: persistir simulacao e retornar idSimulacao
 
@@ -48,13 +57,9 @@ public class SimulacaoService
         return response;
     }
 
-    public List<ParcelaSimulacaoDTO> CalcularParcelasTabelaPrice()
+    public List<ParcelaSimulacaoDTO> CalcularParcelasTabelaPrice(decimal valorDesejado, int prazo, decimal taxaJuros)
     {
         var retorno = new List<ParcelaSimulacaoDTO>();
-
-        var valorDesejado = (decimal)30000.00;
-        var taxaJuros = (decimal)0.020;
-        var prazo = 24;
 
         var fator = (decimal)Math.Pow((double)(1 + taxaJuros), -prazo);
         var valorPrestacao = valorDesejado * taxaJuros / (1 - fator);
@@ -70,7 +75,7 @@ public class SimulacaoService
             var dto = new ParcelaSimulacaoDTO
             {
                 numero = i,
-                valorAmortizacao = Math.Round(valorAmortizacao),
+                valorAmortizacao = Math.Round(valorAmortizacao, 2),
                 valorJuros = Math.Round(valorJuros, 2),
                 valorPrestacao = Math.Round(valorPrestacao, 2)
             };
@@ -82,13 +87,9 @@ public class SimulacaoService
 
     }
 
-    public List<ParcelaSimulacaoDTO> CalcularParcelasTabelaSAC()
+    public List<ParcelaSimulacaoDTO> CalcularParcelasTabelaSAC(decimal valorDesejado, int prazo, decimal taxaJuros)
     {
         var retorno = new List<ParcelaSimulacaoDTO>();
-
-        var valorDesejado = (decimal)30000.00;
-        var taxaJuros = (decimal)0.020;
-        var prazo = 24;
 
         var valorAmortizacao = valorDesejado / prazo;
         var auxSaldoDevedor = valorDesejado;
@@ -102,9 +103,9 @@ public class SimulacaoService
             retorno.Add(new ParcelaSimulacaoDTO
             {
                 numero = i,
-                valorAmortizacao = valorAmortizacao,
-                valorJuros = valorJuros,
-                valorPrestacao = valorPrestacao
+                valorAmortizacao = Math.Round(valorAmortizacao,2),
+                valorJuros = Math.Round(valorJuros,2),
+                valorPrestacao = Math.Round(valorPrestacao,2)
             });
         }
 

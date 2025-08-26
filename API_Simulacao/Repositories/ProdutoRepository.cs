@@ -28,13 +28,20 @@ public class ProdutoRepository
     //    var sql = "SELECT * FROM dbo.PRODUTO WHERE CO_PRODUTO = @Id";
     //    return await _db.QuerySingleOrDefaultAsync<Produto>(sql, new { Id = id });
     //}
-    public async Task<Produto> GetByValorEPrazoAsync(decimal valorDesejado, int prazo)
+    public async Task<Produto?> GetByValorEPrazoAsync(decimal valorDesejado, int prazo)
     {
         var sql = @"
-            SELECT * FROM PRODUTO
+            SELECT CO_PRODUTO as CoProduto,
+                   NO_PRODUTO as NomeProduto, 
+                   VR_MINIMO as VrMinimo, 
+                   VR_MAXIMO as VrMaximo, 
+                   NU_MINIMO_MESES as NuMinimoMeses, 
+                   NU_MAXIMO_MESES as NuMaximoMeses, 
+                   PC_TAXA_JUROS as PcTaxaJuros
+            FROM PRODUTO
             WHERE VR_MAXIMO >= @ValorDesejado AND VR_MINIMO <= @ValorDesejado
             AND NU_MINIMO_MESES <= @Prazo AND NU_MAXIMO_MESES >= @Prazo
         ";
-        return await _db.QueryFirstAsync<Produto>(sql, new { ValorDesejado = valorDesejado, Prazo = prazo });
+        return await _db.QueryFirstOrDefaultAsync<Produto>(sql, new { ValorDesejado = valorDesejado, Prazo = prazo });
     }
 }
