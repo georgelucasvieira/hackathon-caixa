@@ -1,9 +1,11 @@
+using System.Data.Common;
 using System.Reflection;
 using API_Simulacao.Config;
 using API_Simulacao.DTOs.Simulacao;
 using API_Simulacao.Repositories;
 using DbUp;
 using Microsoft.Data.SqlClient;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,11 +16,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 string connStrDbSimulacao = builder.Configuration.GetConnectionString("DbSimulacao")!;
+string connStrDbProdutos = builder.Configuration.GetConnectionString("DbProduto")!;
+
+await SincronizarComBanco(() => new NpgsqlConnection(connStrDbSimulacao), "db_simulacao");
+await SincronizarComBanco(() => new SqlConnection(connStrDbProdutos), "db_produto");
 
 RunMigration(
     connStrDbSimulacao,
     filter: name => name.Contains("Migrations.Simulacao.", StringComparison.OrdinalIgnoreCase),
-    logPrefix: "[db_simulacao/]"
+    logPrefix: "[db_simulacao]"
 );
 
 builder.Services.AddScoped<ProdutoRepository>();
@@ -79,14 +85,14 @@ app.MapGet("/healthcheck/telemetria", async (DateTime dataReferencia) =>
 
 app.Run();
 
-static async Task WaitForSqlAsync(string connStr, string name, int retries = 30)
+static async Task SincronizarComBanco(Func<DbConnection> connFactory, string name, int retries = 30)
 {
     Console.WriteLine($"Waiting {name}...");
     for (var i = 1; i <= retries; i++)
     {
         try
         {
-            await using var conn = new SqlConnection(connStr);
+            await using var conn = connFactory();
             await conn.OpenAsync();
             await using var cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT 1";
