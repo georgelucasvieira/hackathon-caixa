@@ -7,33 +7,20 @@ services:
     container_name: api-simulacao
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      CONN_STR_PRODUTO_MASTER: "Server=sqlserver-produto,1433;Database=master;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;"
-      CONN_STR_PRODUTO: "Server=sqlserver-produto,1433;Database=db_produto;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;"
-      CONN_STR_SIMULACAO_MASTER: "Server=sqlserver-simulacao,1433;Database=master;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;"
-      CONN_STR_SIMULACAO: "Server=sqlserver-simulacao,1433;Database=db_simulacao;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;"
+      CONN_STR_SIMULACAO: "Host=postgres-simulacao;Port=5432;Database=db_simulacao;Username=sa;Password=${SA_PASSWORD};"
     ports:
       - "8080:8080"
     depends_on:
-      # - sqlserver-produto
-      - sqlserver-simulacao
-
-
-  # sqlserver-produto:
-  #   image: mcr.microsoft.com/mssql/server:2022-latest
-  #   container_name: sqlserver-produto
-  #   environment:
-  #     SA_PASSWORD: "YourStrong!Passw0rd"
-  #     ACCEPT_EULA: "Y"
-  #   ports:
-  #     - "1433:1433"
+      - postgres-simulacao
   
-  sqlserver-simulacao:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver-simulacao
+  postgres-simulacao:
+    image: postgres:15
+    container_name: postgres-simulacao
     environment:
-      SA_PASSWORD: "YourStrong!Passw0rd"
-      ACCEPT_EULA: "Y"
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: YourStrong!Passw0rd
+      POSTGRES_DB: db_simulacao
     ports:
-      - "1433:1433"
+      - "5432:5432"
 
 

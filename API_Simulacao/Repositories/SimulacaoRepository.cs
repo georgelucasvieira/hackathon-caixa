@@ -1,7 +1,7 @@
 ﻿using API_Simulacao.DTOs;
 using API_Simulacao.Models;
 using Dapper;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.Data;
 
 namespace API_Simulacao.Repositories;
@@ -13,7 +13,7 @@ public class SimulacaoRepository
     public SimulacaoRepository(IConfiguration configuration) 
     { 
         _configuration = configuration;
-        _db = new SqlConnection(_configuration.GetConnectionString("DbSimulacao"));
+        _db = new NpgsqlConnection(_configuration.GetConnectionString("DbSimulacao"));
     }
 
 

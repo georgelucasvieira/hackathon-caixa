@@ -13,19 +13,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
-string csProduto = Env("CONN_STR_PRODUTO");
-string csSimulacao = Env("CONN_STR_SIMULACAO");
-
-await CreateDatabase();
-
-// RunMigration(
-//     csProduto,
-//     filter: name => name.Contains("Migrations.Produto.", StringComparison.OrdinalIgnoreCase),
-//     logPrefix: "[db_produto/]"
-// );
+string connStrDbSimulacao = builder.Configuration.GetConnectionString("DbSimulacao")!;
 
 RunMigration(
-    csSimulacao,
+    connStrDbSimulacao,
     filter: name => name.Contains("Migrations.Simulacao.", StringComparison.OrdinalIgnoreCase),
     logPrefix: "[db_simulacao/]"
 );
@@ -88,10 +79,6 @@ app.MapGet("/healthcheck/telemetria", async (DateTime dataReferencia) =>
 
 app.Run();
 
-static string Env(string key) =>
-    Environment.GetEnvironmentVariable(key)
-    ?? throw new InvalidOperationException($"{key} não configurada.");
-
 static async Task WaitForSqlAsync(string connStr, string name, int retries = 30)
 {
     Console.WriteLine($"Waiting {name}...");
@@ -121,7 +108,7 @@ static void RunMigration(string connectionString, Func<string, bool> filter, str
     Console.WriteLine($"{logPrefix} Rodando migrations...");
     var upgrader =
         DeployChanges.To
-            .SqlDatabase(connectionString)
+            .PostgresqlDatabase(connectionString)
             .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), filter)
             .LogToConsole()
             .Build();
@@ -130,26 +117,4 @@ static void RunMigration(string connectionString, Func<string, bool> filter, str
     if (!result.Successful)
         throw result.Error!;
     Console.WriteLine($"{logPrefix} Migrations finalizado");
-}
-
-static async Task CreateDatabase()
-{
-    string connStrProdutoMaster = Env("CONN_STR_PRODUTO_MASTER");
-    string connStrSimulacaoMaster = Env("CONN_STR_SIMULACAO_MASTER");
-
-    // await WaitForSqlAsync(connStrProdutoMaster, "sqlserver-produto-master");
-    await WaitForSqlAsync(connStrSimulacaoMaster, "sqlserver-simulacao-master");
-
-    // RunMigration(
-    //     connStrProdutoMaster,
-    //     filter: name => name.Contains("Migrations.Produto.000_", StringComparison.OrdinalIgnoreCase),
-    //     logPrefix: "[db_produto/master]"
-    // );
-
-    RunMigration(
-        connStrSimulacaoMaster,
-        filter: name => name.Contains("Migrations.Simulacao.000_", StringComparison.OrdinalIgnoreCase),
-        logPrefix: "[db_simulacao/master]"
-    );
-
 }
