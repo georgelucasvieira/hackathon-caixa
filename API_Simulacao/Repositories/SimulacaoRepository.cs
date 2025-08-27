@@ -1,7 +1,6 @@
 ﻿using API_Simulacao.DTOs;
 using API_Simulacao.DTOs.Simulacao;
 using API_Simulacao.Enums;
-using API_Simulacao.Models;
 using Dapper;
 using Npgsql;
 using System.Data;

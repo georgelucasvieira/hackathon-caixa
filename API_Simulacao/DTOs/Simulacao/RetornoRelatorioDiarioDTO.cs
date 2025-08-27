@@ -1,7 +1,11 @@
+using System.Text.Json.Serialization;
+using API_Simulacao.Util;
+
 namespace API_Simulacao.DTOs.Simulacao;
 
 public class RetornoRelatorioDiarioDTO
 {
+    [JsonConverter(typeof(JsonDateConverter))]
     public DateTime dataReferencia { get; set; }
     public List<SimulacaoRelatorioDiarioDTO> simulacoes { get; set; } = new List<SimulacaoRelatorioDiarioDTO>();
 }

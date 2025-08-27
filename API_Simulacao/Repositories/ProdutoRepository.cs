@@ -9,7 +9,6 @@ namespace API_Simulacao.Repositories;
 
 public class ProdutoRepository
 {
-    private readonly IDbConnection _db;
     private readonly IMemoryCache _cache;
     private readonly IConfiguration _configuration;
     private const string CacheKeyAll = "Produtos:All";
@@ -17,21 +16,8 @@ public class ProdutoRepository
     public ProdutoRepository(IConfiguration configuration, IMemoryCache cache)
     {
         _configuration = configuration;
-        _db = new SqlConnection(_configuration.GetConnectionString("DbProduto"));
         _cache = cache;
     }
-
-    //public async Task<IEnumerable<Produto>> GetAllAsync()
-    //{
-    //    var sql = "SELECT * FROM dbo.PRODUTO";
-    //    return await _db.QueryAsync<Produto>(sql);
-    //}
-
-    //public async Task<Produto?> GetByIdAsync(int id)
-    //{
-    //    var sql = "SELECT * FROM dbo.PRODUTO WHERE CO_PRODUTO = @Id";
-    //    return await _db.QuerySingleOrDefaultAsync<Produto>(sql, new { Id = id });
-    //}
     public async Task<Produto?> GetByValorEPrazoAsync(decimal valorDesejado, int prazo)
     {
         var produtos = await GetProdutosAsync();
@@ -40,7 +26,7 @@ public class ProdutoRepository
                          p.VrMinimo <= valorDesejado && p.VrMaximo >= valorDesejado &&
                          p.NuMinimoMeses <= prazo && p.NuMaximoMeses >= prazo);
     }
-    public async Task<IEnumerable<Produto>> GetProdutosAsync(Func<Produto, bool>? filtro = null)
+    public async Task<IEnumerable<Produto>?> GetProdutosAsync(Func<Produto, bool>? filtro = null)
     {
         var produtos = await _cache.GetOrCreateAsync(CacheKeyAll, async entry =>
         {
@@ -56,11 +42,13 @@ public class ProdutoRepository
                     PC_TAXA_JUROS as PcTaxaJuros
                 FROM PRODUTO
             ";
-
             Console.WriteLine("Carregando produtos do banco de dados... " + sql);
-
+            IDbConnection _db = new SqlConnection(_configuration.GetConnectionString("DbProduto"));
             return await _db.QueryAsync<Produto>(sql);
         });
+
+        if (produtos is null)
+            return Enumerable.Empty<Produto>();
 
         return filtro == null ? produtos : produtos.Where(filtro).ToList();
     }

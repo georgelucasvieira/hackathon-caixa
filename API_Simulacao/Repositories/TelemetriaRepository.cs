@@ -15,15 +15,19 @@ public class TelemetriaRepository
     public async Task<List<MetricasDTO>> ObterMetricasAsync(DateTime dataReferencia)
     {
         var sql = @"
-            SELECT NOME_API as nomeApi, 
-                AVG(TEMPO_MS) AS tempoMedio,
+            SELECT 
+                NOME_API as nomeApi, 
+                ROUND(AVG(TEMPO_MS)::numeric, 2) AS tempoMedio,
                 MIN(TEMPO_MS) AS tempoMinimo,
                 MAX(TEMPO_MS) AS tempoMaximo,
                 COUNT(*) AS qtdeRequisicoes,
-                SUM(CASE WHEN STATUS_CODE >= 200 AND STATUS_CODE < 300 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS percentualSucesso 
+                ROUND(
+                    (SUM(CASE WHEN STATUS_CODE >= 200 AND STATUS_CODE < 300 THEN 1 ELSE 0 END)::numeric / COUNT(*)),
+                    2
+                ) AS percentualSucesso
             FROM METRICAS_TELEMETRIA
             WHERE DATE(DATA) = @DataReferencia
-            GROUP BY NOME_API, DATE(DATA), STATUS_CODE;
+            GROUP BY NOME_API;
         ";
 
         var metricas = (await _db.QueryAsync<MetricasDTO>(sql,

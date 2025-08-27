@@ -1,7 +1,11 @@
+using System.Text.Json.Serialization;
+using API_Simulacao.Util;
+
 namespace API_Simulacao.Models;
 
-public class TelemetriaDTO
+public class RetornoTelemetriaDTO
 {
+    [JsonConverter(typeof(JsonDateConverter))]
     public DateTime dataReferencia { get; set; }
     public List<MetricasDTO> listaEndpoints { get; set; } = new List<MetricasDTO>();
 

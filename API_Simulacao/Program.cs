@@ -1,5 +1,7 @@
-using System.Data.Common;
-using System.Reflection;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using API_Simulacao.Config;
+using API_Simulacao.DTOs;
 using API_Simulacao.DTOs.Simulacao;
 using API_Simulacao.Enums;
 using API_Simulacao.Middlewares;
@@ -7,9 +9,6 @@ using API_Simulacao.Models;
 using API_Simulacao.Repositories;
 using API_Simulacao.Services;
 using API_Simulacao.Util;
-using DbUp;
-using Microsoft.Data.SqlClient;
-using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,23 +19,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache();
 
-string connStrDbSimulacao = builder.Configuration.GetConnectionString("DbSimulacao")!;
-string connStrDbProdutos = builder.Configuration.GetConnectionString("DbProduto")!;
-
-await SincronizarComBanco(() => new NpgsqlConnection(connStrDbSimulacao), "db_simulacao");
-await SincronizarComBanco(() => new SqlConnection(connStrDbProdutos), "db_produto");
-
-RunMigration(
-    connStrDbSimulacao,
-    filter: name => name.Contains("Migrations.Simulacao.", StringComparison.OrdinalIgnoreCase),
-    logPrefix: "[db_simulacao]"
-);
+await builder.ConfigurarDatabases();
 
 builder.Services.AddScoped<ProdutoRepository>();
 builder.Services.AddScoped<SimulacaoRepository>();
 builder.Services.AddScoped<TelemetriaRepository>();
 builder.Services.AddScoped<SimulacaoService>();
-builder.Services.AddScoped<EventHubSDK>();
+builder.Services.AddSingleton<EventHubSDK>();
 
 var app = builder.Build();
 
@@ -46,9 +35,22 @@ app.UseMiddleware<TelemetryMiddleware>();
 
 app.MapPost("/simulacoes", async (ProdutoRepository produtoRepo, SimulacaoService simulacaoService, EntradaSimulacaoDTO request) =>
 {
+    var validationResults = new List<ValidationResult>();
+    var context = new ValidationContext(request);
+
+    if (!Validator.TryValidateObject(request, context, validationResults, true))
+    {
+        return Results.BadRequest(validationResults.Select(v => new
+        {
+            Campo = v.MemberNames.FirstOrDefault(),
+            Erro = v.ErrorMessage
+        }));
+    }
+
     var response = await simulacaoService.RealizarSimulacao(request);
     return Results.Ok(response);
 })
+.AddEndpointFilter<ValidationFilter<EntradaSimulacaoDTO>>()
 .WithOpenApi();
 
 app.MapGet("/simulacoes", async (SimulacaoRepository simulacaoRepo, int? pagina, int? limite) =>
@@ -58,13 +60,14 @@ app.MapGet("/simulacoes", async (SimulacaoRepository simulacaoRepo, int? pagina,
 })
 .WithOpenApi();
 
-app.MapGet("/simulacoes/relatorio", async (SimulacaoRepository simulacaoRepo, DateTime dataReferencia, int codigoProduto) =>
+app.MapGet("/simulacoes/relatorio", async (SimulacaoRepository simulacaoRepo,  DateTime? dataReferencia, int codigoProduto) =>
 {
-    var relatorioDiario = await simulacaoRepo.GetAllByDataProdutoTipoAsync(dataReferencia, codigoProduto, TipoSimulacao.PRICE);
+    var _dataReferencia = dataReferencia ?? DateTime.UtcNow.Date;
+    var relatorioDiario = await simulacaoRepo.GetAllByDataProdutoTipoAsync(_dataReferencia, codigoProduto, TipoSimulacao.PRICE);
 
     var retorno = new RetornoRelatorioDiarioDTO
     {
-        dataReferencia = dataReferencia,
+        dataReferencia = _dataReferencia,
         simulacoes = relatorioDiario
     };
 
@@ -72,12 +75,13 @@ app.MapGet("/simulacoes/relatorio", async (SimulacaoRepository simulacaoRepo, Da
 })
 .WithOpenApi();
 
-app.MapGet("/telemetria/metricas", async (TelemetriaRepository telemetriaRepo, DateTime dataReferencia) =>
+app.MapGet("/telemetria/metricas", async (TelemetriaRepository telemetriaRepo, DateTime? dataReferencia) =>
 {
-    var metricas = await telemetriaRepo.ObterMetricasAsync(dataReferencia);
-    var retorno = new TelemetriaDTO
+    var _dataReferencia = dataReferencia ?? DateTime.UtcNow.Date;
+    var metricas = await telemetriaRepo.ObterMetricasAsync(_dataReferencia);
+    var retorno = new RetornoTelemetriaDTO
     {
-        dataReferencia = dataReferencia,
+        dataReferencia = _dataReferencia,
         listaEndpoints = metricas
     };
     return Results.Ok(retorno);
@@ -85,43 +89,3 @@ app.MapGet("/telemetria/metricas", async (TelemetriaRepository telemetriaRepo, D
 .WithOpenApi();
 
 app.Run();
-
-static async Task SincronizarComBanco(Func<DbConnection> connFactory, string name, int retries = 30)
-{
-    Console.WriteLine($"Waiting {name}...");
-    for (var i = 1; i <= retries; i++)
-    {
-        try
-        {
-            await using var conn = connFactory();
-            await conn.OpenAsync();
-            await using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT 1";
-            await cmd.ExecuteScalarAsync();
-            Console.WriteLine($"[{name}] pronto.");
-            return;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Aguardando {name}... tent {i}/{retries} ({ex.Message})");
-            await Task.Delay(TimeSpan.FromSeconds(2));
-        }
-    }
-    throw new Exception($"Timeout aguardando {name}");
-}
-
-static void RunMigration(string connectionString, Func<string, bool> filter, string logPrefix)
-{
-    Console.WriteLine($"{logPrefix} Rodando migrations...");
-    var upgrader =
-        DeployChanges.To
-            .PostgresqlDatabase(connectionString)
-            .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), filter)
-            .LogToConsole()
-            .Build();
-
-    var result = upgrader.PerformUpgrade();
-    if (!result.Successful)
-        throw result.Error!;
-    Console.WriteLine($"{logPrefix} Migrations finalizado");
-}
