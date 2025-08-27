@@ -22,7 +22,7 @@ public class TelemetriaRepository
                 COUNT(*) AS qtdeRequisicoes,
                 SUM(CASE WHEN STATUS_CODE >= 200 AND STATUS_CODE < 300 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS percentualSucesso 
             FROM METRICAS_TELEMETRIA
-            WHERE DATA >= @DataReferencia
+            WHERE DATE(DATA) = @DataReferencia
             GROUP BY NOME_API, DATE(DATA), STATUS_CODE;
         ";
 
