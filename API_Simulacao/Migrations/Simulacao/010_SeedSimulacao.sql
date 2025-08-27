@@ -1,10 +1,14 @@
 TRUNCATE TABLE parcelas, simulacao RESTART IDENTITY CASCADE;
 
-INSERT INTO simulacao (id, tipo, data_criacao) VALUES
-  (1, 'SAC',   NOW()),
-  (2, 'SAC',   NOW()),
-  (3, 'PRICE', NOW()),
-  (4, 'PRICE', NOW());
+INSERT INTO solicitacao_simulacao (id, data_criacao, prazo, valor_desejado) VALUES
+  (1, NOW(), 24, 5000.00),
+  (2, NOW(), 36, 6000.00);
+
+INSERT INTO simulacao (id, tipo, data_criacao, solicitacao_id) VALUES
+  (1, 'SAC',   NOW(), 1),
+  (2, 'PRICE', NOW(), 1),
+  (3, 'SAC',   NOW(), 2),
+  (4, 'PRICE', NOW(), 2);
 
 INSERT INTO parcelas (simulacao_id, numero, valor_amortizacao, valor_juros, valor_prestacao) VALUES
   (1, 1, 1002.12, 100.50, 1102.62),
@@ -26,3 +30,7 @@ INSERT INTO parcelas (simulacao_id, numero, valor_amortizacao, valor_juros, valo
   (4, 2, 8721.12,  81.08, 8802.20),
   (4, 3, 8721.12,  81.08, 8802.20),
   (4, 4, 8721.12,  81.08, 8802.20);
+
+SELECT setval('solicitacao_simulacao_id_seq', (SELECT MAX(id) FROM solicitacao_simulacao));
+SELECT setval('simulacao_id_seq', (SELECT MAX(id) FROM simulacao));
+SELECT setval('parcelas_id_seq', (SELECT MAX(id) FROM parcelas));

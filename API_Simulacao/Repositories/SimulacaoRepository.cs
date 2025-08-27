@@ -1,4 +1,6 @@
 ﻿using API_Simulacao.DTOs;
+using API_Simulacao.DTOs.Simulacao;
+using API_Simulacao.Enums;
 using API_Simulacao.Models;
 using Dapper;
 using Npgsql;
@@ -8,69 +10,99 @@ namespace API_Simulacao.Repositories;
 
 public class SimulacaoRepository
 {
-    private readonly IDbConnection  _db;
+    private readonly IDbConnection _db;
     private readonly IConfiguration _configuration;
-    public SimulacaoRepository(IConfiguration configuration) 
-    { 
+    public SimulacaoRepository(IConfiguration configuration)
+    {
         _configuration = configuration;
         _db = new NpgsqlConnection(_configuration.GetConnectionString("DbSimulacao"));
     }
 
-
-    public async Task<RetornoPaginadoDTO<Simulacao>> GetAllPaginatedAsync(int pageNumber, int pageSize)
+    public async Task<RetornoPaginadoDTO<RetornoListaSimulacaoDTO>> GetAllByTipoPaginatedAsync(int pageNumber, int pageSize, TipoSimulacao tipo)
     {
-        var countSql = "SELECT COUNT(*) FROM SIMULACAO";
-        var totalRegistros = await _db.ExecuteScalarAsync<int>(countSql);
+        var countSql = "SELECT COUNT(*) FROM SIMULACAO WHERE TIPO = @Tipo";
+        var totalRegistros = await _db.ExecuteScalarAsync<int>(countSql, new { Tipo = tipo.ToString() });
 
         var dataSql = @"
-            WITH PaginatedSimulacoes AS (
-                SELECT *
-                FROM SIMULACAO
-                ORDER BY ID
-                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
-            )
             SELECT 
-                s.ID as Id, s.TIPO as Tipo, s.DATA_CRIACAO AS DataCriacao,
-                p.ID as ParcelaId, p.SIMULACAO_ID as SimulacaoId, p.NUMERO as Numero,
-                p.VALOR_AMORTIZACAO AS ValorAmortizacao, p.VALOR_JUROS AS ValorJuros, p.VALOR_PRESTACAO AS ValorPrestacao
-            FROM PaginatedSimulacoes s
+                s.ID as id,
+                ss.ID AS idSimulacao,
+                s.TIPO AS tipoSimulacao,
+                ss.PRAZO AS prazo,
+                ss.VALOR_DESEJADO AS valorDesejado,
+                SUM(p.VALOR_PRESTACAO) AS valorTotalParcelas
+            FROM SIMULACAO s
             LEFT JOIN PARCELAS p ON s.ID = p.SIMULACAO_ID
-            ORDER BY s.ID, p.NUMERO;
+            LEFT JOIN SOLICITACAO_SIMULACAO ss ON ss.ID = s.SOLICITACAO_ID
+            WHERE s.TIPO = @Tipo
+            GROUP BY s.ID, ss.ID, s.TIPO, ss.PRAZO
+            ORDER BY s.ID
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
         ";
 
-        var simulacoes = new Dictionary<int, Simulacao>();
+        var simulacoes = (await _db.QueryAsync<RetornoListaSimulacaoDTO>(
+        dataSql,
+        new
+        {
+            Tipo = tipo.ToString(),
+            Offset = (pageNumber - 1) * pageSize,
+            PageSize = pageSize
+        }
+        )).ToList();
 
-        await _db.QueryAsync<Simulacao, Parcela, Simulacao>(
-            dataSql,
-            (simulacao, parcela) =>
-            {
-                if (!simulacoes.TryGetValue(simulacao.Id, out var existingSimulacao))
-                {
-                    existingSimulacao = simulacao;
-                    existingSimulacao.Parcelas = new List<Parcela>();
-                    simulacoes.Add(existingSimulacao.Id, existingSimulacao);
-                }
-
-                if (parcela != null)
-                    existingSimulacao.Parcelas.Add(parcela);
-
-                return existingSimulacao;
-            },
-            new
-            {
-                Offset = (pageNumber - 1) * pageSize,
-                PageSize = pageSize
-            },
-            splitOn: "ParcelaId"
-        );
-
-        return new RetornoPaginadoDTO<Simulacao>
+        return new RetornoPaginadoDTO<RetornoListaSimulacaoDTO>
         {
             pagina = pageNumber,
             qtdRegistros = totalRegistros,
             qtdRegistrosPagina = pageSize,
-            registros = simulacoes.Values.ToList()
+            registros = simulacoes
         };
+    }
+
+    public async Task InserirSimulacaoCompletaAsync(decimal valorDesejado, int prazo, List<ResultadoSimulacaoDTO> resultadosSimulacoes)
+    {
+        _db.Open();
+        using var transaction = _db.BeginTransaction();
+
+        try
+        {
+            var solicitacaoSql = @"
+                INSERT INTO SOLICITACAO_SIMULACAO (PRAZO, VALOR_DESEJADO, DATA_CRIACAO)
+                VALUES (@Prazo, @ValorDesejado, NOW())
+                RETURNING ID;
+            ";
+
+            var solicitacaoId = await _db.ExecuteScalarAsync<int>(solicitacaoSql, new { Prazo = prazo, ValorDesejado = valorDesejado }, transaction);
+
+            foreach (var resultado in resultadosSimulacoes)
+            {
+                var sql = "INSERT INTO SIMULACAO (SOLICITACAO_ID, TIPO, DATA_CRIACAO) VALUES (@SolicitacaoId, @Tipo, NOW()) RETURNING ID;";
+                var simulacaoId = await _db.ExecuteScalarAsync<int>(sql, new { SolicitacaoId = solicitacaoId, Tipo = resultado.tipo.ToString() }, transaction);
+
+                foreach (var parcela in resultado.parcelas!)
+                {
+                    var parcelaSql = @"
+                        INSERT INTO PARCELAS (SIMULACAO_ID, NUMERO, VALOR_PRESTACAO, VALOR_AMORTIZACAO, VALOR_JUROS)
+                        VALUES (@SimulacaoId, @NumeroParcela, @ValorPrestacao, @ValorAmortizacao, @ValorJuros);
+                    ";
+                    await _db.ExecuteAsync(parcelaSql, new
+                    {
+                        SimulacaoId = simulacaoId,
+                        NumeroParcela = parcela.numero,
+                        ValorPrestacao = parcela.valorPrestacao,
+                        ValorAmortizacao = parcela.valorAmortizacao,
+                        ValorJuros = parcela.valorJuros,
+                    }, transaction);
+                }
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
 }

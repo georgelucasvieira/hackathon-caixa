@@ -37,8 +37,6 @@ public class SimulacaoService
             {
                 tipo = TipoSimulacao.SAC,
                 parcelas = CalcularParcelasTabelaSAC(valorDesejado, prazo, taxaJuros)
-
-
             },
             new ResultadoSimulacaoDTO
             {
@@ -47,7 +45,7 @@ public class SimulacaoService
             }
         };
 
-        
+        await _simulacaoRepository.InserirSimulacaoCompletaAsync(valorDesejado, prazo, resultadosSimulacoes);
 
         response.resultadoSimulacao = resultadosSimulacoes;
         response.codigoProduto = produto.CoProduto;

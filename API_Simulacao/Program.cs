@@ -1,6 +1,7 @@
 using System.Data.Common;
 using System.Reflection;
 using API_Simulacao.DTOs.Simulacao;
+using API_Simulacao.Enums;
 using API_Simulacao.Repositories;
 using API_Simulacao.Services;
 using DbUp;
@@ -46,9 +47,8 @@ app.MapPost("/simulacoes", async (ProdutoRepository produtoRepo, SimulacaoServic
 
 app.MapGet("/simulacoes", async (SimulacaoRepository simulacaoRepo, int? pagina, int? limite) =>
 {
-    var simulacoes = await simulacaoRepo.GetAllPaginatedAsync(pagina ?? 1, limite ?? 10);
+    var simulacoes = await simulacaoRepo.GetAllByTipoPaginatedAsync(pagina ?? 1, limite ?? 10, TipoSimulacao.PRICE);
     return Results.Ok(simulacoes);
-
 })
 .WithName("ObterSimulacoes")
 .WithOpenApi();
