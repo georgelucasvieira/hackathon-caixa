@@ -1,7 +1,10 @@
-﻿using API_Simulacao.DTOs.Simulacao;
+﻿using System.Text;
+using System.Text.Json;
+using API_Simulacao.DTOs.Simulacao;
 using API_Simulacao.Enums;
 using API_Simulacao.Models;
 using API_Simulacao.Repositories;
+using API_Simulacao.Util;
 
 namespace API_Simulacao.Services;
 
@@ -9,11 +12,13 @@ public class SimulacaoService
 {
     private readonly ProdutoRepository _produtoRepository;
     private readonly SimulacaoRepository _simulacaoRepository;
+    private readonly EventHubSDK _eventHubSDK;
 
-    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository)
+    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubSDK eventHubSDK)
     {
         _produtoRepository = produtoRepository;
         _simulacaoRepository = simulacaoRepository;
+        _eventHubSDK = eventHubSDK;
     }
 
     public async Task<RetornoSimulacaoDTO> RealizarSimulacao(EntradaSimulacaoDTO entradaSimulacaoDto)
@@ -51,6 +56,9 @@ public class SimulacaoService
         response.codigoProduto = produto.CoProduto;
         response.taxaJuros = produto.PcTaxaJuros;
         response.idSimulacao = idSimulacao;
+
+        var json = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+        await _eventHubSDK.EnviaEvento(json);
 
         return response;
     }

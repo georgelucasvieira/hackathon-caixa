@@ -12,14 +12,13 @@
         
         public EventHubSDK(IConfiguration configuration)
         {
-            _producerClient = new EventHubProducerClient(configuration.GetConnectionString("eventHubSimulacoesConnString"), configuration.GetValue<string>("eventHubSimulacoesName"));
+            _producerClient = new EventHubProducerClient(configuration.GetConnectionString("EhSimulacoes"));
         }
-        public async Task EnviaEvento(string message)
+        public async Task EnviaEvento(byte[] json)
         {
             using EventDataBatch eventBatch = await _producerClient.CreateBatchAsync();
 
-
-            if (!eventBatch.TryAdd(new EventData(message)))
+            if (!eventBatch.TryAdd(new EventData(json)))
             {
                 throw new Exception($"Evento muito grande");
             }

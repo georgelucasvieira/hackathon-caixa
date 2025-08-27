@@ -6,6 +6,7 @@ using API_Simulacao.Middlewares;
 using API_Simulacao.Models;
 using API_Simulacao.Repositories;
 using API_Simulacao.Services;
+using API_Simulacao.Util;
 using DbUp;
 using Microsoft.Data.SqlClient;
 using Npgsql;
@@ -35,6 +36,7 @@ builder.Services.AddScoped<ProdutoRepository>();
 builder.Services.AddScoped<SimulacaoRepository>();
 builder.Services.AddScoped<TelemetriaRepository>();
 builder.Services.AddScoped<SimulacaoService>();
+builder.Services.AddScoped<EventHubSDK>();
 
 var app = builder.Build();
 
