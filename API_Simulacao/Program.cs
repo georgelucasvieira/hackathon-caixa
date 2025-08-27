@@ -2,6 +2,8 @@ using System.Data.Common;
 using System.Reflection;
 using API_Simulacao.DTOs.Simulacao;
 using API_Simulacao.Enums;
+using API_Simulacao.Middlewares;
+using API_Simulacao.Models;
 using API_Simulacao.Repositories;
 using API_Simulacao.Services;
 using DbUp;
@@ -30,12 +32,14 @@ RunMigration(
 
 builder.Services.AddScoped<ProdutoRepository>();
 builder.Services.AddScoped<SimulacaoRepository>();
+builder.Services.AddScoped<TelemetriaRepository>();
 builder.Services.AddScoped<SimulacaoService>();
 
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseMiddleware<TelemetryMiddleware>();
 
 app.MapPost("/simulacoes", async (ProdutoRepository produtoRepo, SimulacaoService simulacaoService, EntradaSimulacaoDTO request) =>
 {
@@ -68,9 +72,15 @@ app.MapGet("/simulacoes/relatorio", async (DateTime dataReferencia) =>
 .WithName("ObterRelatorio")
 .WithOpenApi();
 
-app.MapGet("/healthcheck/telemetria", async (DateTime dataReferencia) =>
+app.MapGet("/telemetria/metricas", async (TelemetriaRepository telemetriaRepo, DateTime dataReferencia) =>
 {
-    Results.Ok();
+    var metricas = await telemetriaRepo.ObterMetricasAsync(dataReferencia);
+    var retorno = new TelemetriaDTO
+    {
+        dataReferencia = dataReferencia,
+        listaEndpoints = metricas
+    };
+    return Results.Ok(retorno);
 })
 .WithName("Telemetria")
 .WithOpenApi();
