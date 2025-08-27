@@ -42,6 +42,7 @@ Esta API foi escrita com ênfase maior em **performance**, e algumas decisões r
 3. **Cache para a tabela de Produtos**
 
    * A tabela de produtos muda com pouca frequência. Usar **MemoryCache** evita consultas repetidas e melhora o tempo de resposta.
+   * Basta reiniciar a aplicação (docker compose stop, docker compose up) que o cache atualiza caso hajam mudanças no banco de produtos
 
 4. **Operações assíncronas (`async/await`)**
 
