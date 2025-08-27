@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 
 string connStrDbSimulacao = builder.Configuration.GetConnectionString("DbSimulacao")!;
 string connStrDbProdutos = builder.Configuration.GetConnectionString("DbProduto")!;

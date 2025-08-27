@@ -97,7 +97,11 @@ public class SimulacaoRepository
                 RETURNING ID;
             ";
 
-            var solicitacaoId = await _db.ExecuteScalarAsync<int>(solicitacaoSql, new { Prazo = prazo, ValorDesejado = valorDesejado }, transaction);
+            var solicitacaoId = await _db.ExecuteScalarAsync<int>(
+                solicitacaoSql,
+                new { Prazo = prazo, ValorDesejado = valorDesejado, CoProduto = coProduto, NomeProduto = nomeProduto },
+                transaction
+            );
 
             foreach (var resultado in resultadosSimulacoes)
             {
