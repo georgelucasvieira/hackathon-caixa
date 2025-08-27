@@ -1,0 +1,33 @@
+curl -X 'GET' \
+  'http://localhost:8080/telemetria/metricas?dataReferencia=2025-08-27' \
+  -H 'accept: */*'
+
+{
+  "dataReferencia": "2025-08-27",
+  "listaEndpoints": [
+    {
+      "nomeApi": "/simulacoes",
+      "qtdeRequisicoes": 11,
+      "tempoMedio": 76,
+      "tempoMinimo": 2,
+      "tempoMaximo": 497,
+      "percentualSucesso": 0.82
+    },
+    {
+      "nomeApi": "/simulacoes/relatorio",
+      "qtdeRequisicoes": 2,
+      "tempoMedio": 18,
+      "tempoMinimo": 13,
+      "tempoMaximo": 23,
+      "percentualSucesso": 1
+    },
+    {
+      "nomeApi": "/telemetria/metricas",
+      "qtdeRequisicoes": 4,
+      "tempoMedio": 19,
+      "tempoMinimo": 2,
+      "tempoMaximo": 42,
+      "percentualSucesso": 1
+    }
+  ]
+}

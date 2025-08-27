@@ -1,0 +1,33 @@
+curl -X 'GET' \
+  'http://localhost:8080/simulacoes/relatorio?dataReferencia=2025-08-27&codigoProduto=1' \
+  -H 'accept: */*'
+
+  {
+  "dataReferencia": "2025-08-27",
+  "simulacoes": [
+    {
+      "codigoProduto": 1,
+      "descricaoProduto": "Produto 1",
+      "taxaMediaJuro": 99.55083333333333,
+      "valorMedioPrestacao": 516.22,
+      "valorTotalDesejado": 240000,
+      "valorTotalCredito": 12389.28
+    },
+    {
+      "codigoProduto": 1,
+      "descricaoProduto": "Produto 1",
+      "taxaMediaJuro": 99.55083333333333,
+      "valorMedioPrestacao": 516.22,
+      "valorTotalDesejado": 240000,
+      "valorTotalCredito": 12389.28
+    },
+    {
+      "codigoProduto": 1,
+      "descricaoProduto": "Produto 1",
+      "taxaMediaJuro": 99.55083333333333,
+      "valorMedioPrestacao": 516.22,
+      "valorTotalDesejado": 240000,
+      "valorTotalCredito": 12389.28
+    }
+  ]
+}

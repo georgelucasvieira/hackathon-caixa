@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
 using API_Simulacao.Config;
 using API_Simulacao.DTOs;
 using API_Simulacao.DTOs.Simulacao;
@@ -35,19 +34,9 @@ app.UseMiddleware<TelemetryMiddleware>();
 
 app.MapPost("/simulacoes", async (ProdutoRepository produtoRepo, SimulacaoService simulacaoService, EntradaSimulacaoDTO request) =>
 {
-    var validationResults = new List<ValidationResult>();
-    var context = new ValidationContext(request);
-
-    if (!Validator.TryValidateObject(request, context, validationResults, true))
-    {
-        return Results.BadRequest(validationResults.Select(v => new
-        {
-            Campo = v.MemberNames.FirstOrDefault(),
-            Erro = v.ErrorMessage
-        }));
-    }
-
     var response = await simulacaoService.RealizarSimulacao(request);
+    if (response == null || response.idSimulacao == 0)
+        return Results.Ok(new { message = "Nenhum produto encontrado para os parâmetros informados" });
     return Results.Ok(response);
 })
 .AddEndpointFilter<ValidationFilter<EntradaSimulacaoDTO>>()

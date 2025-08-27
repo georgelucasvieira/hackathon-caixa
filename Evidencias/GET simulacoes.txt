@@ -1,0 +1,23 @@
+curl -X 'GET' \
+  'http://localhost:8080/simulacoes?pagina=1&limite=2' \
+  -H 'accept: */*'
+
+{
+  "pagina": 1,
+  "qtdRegistros": 3,
+  "qtdRegistrosPagina": 2,
+  "registros": [
+    {
+      "idSimulacao": 1,
+      "valorDesejado": 10000,
+      "prazo": 24,
+      "valorTotalParcelas": 12389.28
+    },
+    {
+      "idSimulacao": 2,
+      "valorDesejado": 10000,
+      "prazo": 24,
+      "valorTotalParcelas": 12389.28
+    }
+  ]
+}

@@ -45,7 +45,7 @@ public class SimulacaoRepository
         {
             Tipo = tipo.ToString(),
             Offset = (pageNumber - 1) * pageSize,
-            PageSize = pageSize
+            PageSize = pageSize 
         }
         )).ToList();
 
@@ -53,7 +53,7 @@ public class SimulacaoRepository
         {
             pagina = pageNumber,
             qtdRegistros = totalRegistros,
-            qtdRegistrosPagina = pageSize,
+            qtdRegistrosPagina = simulacoes.Count,
             registros = simulacoes
         };
     }

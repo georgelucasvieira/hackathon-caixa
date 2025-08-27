@@ -1,0 +1,315 @@
+curl -X 'POST' \
+  'http://localhost:8080/simulacoes' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "valorDesejado": "asdasdasdas",
+  "prazo": 24
+}'
+
+{
+  "idSimulacao": 3,
+  "codigoProduto": 1,
+  "taxaJuros": 0.0179,
+  "resultadoSimulacao": [
+    {
+      "tipo": "SAC",
+      "parcelas": [
+        {
+          "numero": 1,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 179,
+          "valorPrestacao": 595.67
+        },
+        {
+          "numero": 2,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 171.54,
+          "valorPrestacao": 588.21
+        },
+        {
+          "numero": 3,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 164.08,
+          "valorPrestacao": 580.75
+        },
+        {
+          "numero": 4,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 156.62,
+          "valorPrestacao": 573.29
+        },
+        {
+          "numero": 5,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 149.17,
+          "valorPrestacao": 565.83
+        },
+        {
+          "numero": 6,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 141.71,
+          "valorPrestacao": 558.37
+        },
+        {
+          "numero": 7,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 134.25,
+          "valorPrestacao": 550.92
+        },
+        {
+          "numero": 8,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 126.79,
+          "valorPrestacao": 543.46
+        },
+        {
+          "numero": 9,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 119.33,
+          "valorPrestacao": 536
+        },
+        {
+          "numero": 10,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 111.87,
+          "valorPrestacao": 528.54
+        },
+        {
+          "numero": 11,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 104.42,
+          "valorPrestacao": 521.08
+        },
+        {
+          "numero": 12,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 96.96,
+          "valorPrestacao": 513.62
+        },
+        {
+          "numero": 13,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 89.5,
+          "valorPrestacao": 506.17
+        },
+        {
+          "numero": 14,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 82.04,
+          "valorPrestacao": 498.71
+        },
+        {
+          "numero": 15,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 74.58,
+          "valorPrestacao": 491.25
+        },
+        {
+          "numero": 16,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 67.12,
+          "valorPrestacao": 483.79
+        },
+        {
+          "numero": 17,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 59.67,
+          "valorPrestacao": 476.33
+        },
+        {
+          "numero": 18,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 52.21,
+          "valorPrestacao": 468.87
+        },
+        {
+          "numero": 19,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 44.75,
+          "valorPrestacao": 461.42
+        },
+        {
+          "numero": 20,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 37.29,
+          "valorPrestacao": 453.96
+        },
+        {
+          "numero": 21,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 29.83,
+          "valorPrestacao": 446.5
+        },
+        {
+          "numero": 22,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 22.37,
+          "valorPrestacao": 439.04
+        },
+        {
+          "numero": 23,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 14.92,
+          "valorPrestacao": 431.58
+        },
+        {
+          "numero": 24,
+          "valorAmortizacao": 416.67,
+          "valorJuros": 7.46,
+          "valorPrestacao": 424.12
+        }
+      ]
+    },
+    {
+      "tipo": "PRICE",
+      "parcelas": [
+        {
+          "numero": 1,
+          "valorAmortizacao": 337.22,
+          "valorJuros": 179,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 2,
+          "valorAmortizacao": 343.25,
+          "valorJuros": 172.96,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 3,
+          "valorAmortizacao": 349.4,
+          "valorJuros": 166.82,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 4,
+          "valorAmortizacao": 355.65,
+          "valorJuros": 160.57,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 5,
+          "valorAmortizacao": 362.02,
+          "valorJuros": 154.2,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 6,
+          "valorAmortizacao": 368.5,
+          "valorJuros": 147.72,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 7,
+          "valorAmortizacao": 375.09,
+          "valorJuros": 141.12,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 8,
+          "valorAmortizacao": 381.81,
+          "valorJuros": 134.41,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 9,
+          "valorAmortizacao": 388.64,
+          "valorJuros": 127.57,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 10,
+          "valorAmortizacao": 395.6,
+          "valorJuros": 120.62,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 11,
+          "valorAmortizacao": 402.68,
+          "valorJuros": 113.54,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 12,
+          "valorAmortizacao": 409.89,
+          "valorJuros": 106.33,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 13,
+          "valorAmortizacao": 417.23,
+          "valorJuros": 98.99,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 14,
+          "valorAmortizacao": 424.69,
+          "valorJuros": 91.52,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 15,
+          "valorAmortizacao": 432.3,
+          "valorJuros": 83.92,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 16,
+          "valorAmortizacao": 440.03,
+          "valorJuros": 76.18,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 17,
+          "valorAmortizacao": 447.91,
+          "valorJuros": 68.31,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 18,
+          "valorAmortizacao": 455.93,
+          "valorJuros": 60.29,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 19,
+          "valorAmortizacao": 464.09,
+          "valorJuros": 52.13,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 20,
+          "valorAmortizacao": 472.4,
+          "valorJuros": 43.82,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 21,
+          "valorAmortizacao": 480.85,
+          "valorJuros": 35.36,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 22,
+          "valorAmortizacao": 489.46,
+          "valorJuros": 26.76,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 23,
+          "valorAmortizacao": 498.22,
+          "valorJuros": 18,
+          "valorPrestacao": 516.22
+        },
+        {
+          "numero": 24,
+          "valorAmortizacao": 507.14,
+          "valorJuros": 9.08,
+          "valorPrestacao": 516.22
+        }
+      ]
+    }
+  ]
+}
+
