@@ -55,13 +55,6 @@ app.MapGet("/simulacoes", async (SimulacaoRepository simulacaoRepo, int? pagina,
 })
 .WithOpenApi();
 
-//bonus/opcional
-app.MapGet("/simulacoes/detalhe/{id}", async (int id) =>
-{
-    return Results.Ok();
-})
-.WithOpenApi();
-
 app.MapGet("/simulacoes/relatorio", async (SimulacaoRepository simulacaoRepo, DateTime dataReferencia, int codigoProduto) =>
 {
     var relatorioDiario = await simulacaoRepo.GetAllByDataProdutoTipoAsync(dataReferencia, codigoProduto, TipoSimulacao.PRICE);
