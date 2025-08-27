@@ -5,5 +5,5 @@ public class RetornoPaginadoDTO<T>
     public int pagina { get; set; }
     public int qtdRegistros { get; set; }
     public int qtdRegistrosPagina { get; set; }
-    public List<T> registros { get; set; }
+    public List<T> registros { get; set; } = new List<T>();
 }

@@ -47,7 +47,7 @@ public class SimulacaoService
             }
         };
 
-        // TODO: persistir simulacao e retornar idSimulacao
+        
 
         response.resultadoSimulacao = resultadosSimulacoes;
         response.codigoProduto = produto.CoProduto;
