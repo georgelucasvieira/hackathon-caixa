@@ -45,12 +45,12 @@ public class SimulacaoService
             }
         };
 
-        await _simulacaoRepository.InserirSimulacaoCompletaAsync(valorDesejado, prazo, resultadosSimulacoes);
+        var idSimulacao = await _simulacaoRepository.InserirSimulacaoCompletaAsync(valorDesejado, prazo, produto.CoProduto, produto.NomeProduto, resultadosSimulacoes);
 
         response.resultadoSimulacao = resultadosSimulacoes;
         response.codigoProduto = produto.CoProduto;
         response.taxaJuros = produto.PcTaxaJuros;
-        response.idSimulacao = 1234;
+        response.idSimulacao = idSimulacao;
 
         return response;
     }

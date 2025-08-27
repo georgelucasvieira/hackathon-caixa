@@ -1,8 +1,8 @@
 TRUNCATE TABLE parcelas, simulacao RESTART IDENTITY CASCADE;
 
-INSERT INTO solicitacao_simulacao (id, data_criacao, prazo, valor_desejado) VALUES
-  (1, NOW(), 24, 5000.00),
-  (2, NOW(), 36, 6000.00);
+INSERT INTO solicitacao_simulacao (id, data_criacao, prazo, valor_desejado, co_produto, no_produto) VALUES
+  (1, NOW(), 24, 5000.00, 1, 'Produto 1'),
+  (2, NOW(), 36, 6000.00, 2, 'Produto 2');
 
 INSERT INTO simulacao (id, tipo, data_criacao, solicitacao_id) VALUES
   (1, 'SAC',   NOW(), 1),

@@ -59,7 +59,32 @@ public class SimulacaoRepository
         };
     }
 
-    public async Task InserirSimulacaoCompletaAsync(decimal valorDesejado, int prazo, List<ResultadoSimulacaoDTO> resultadosSimulacoes)
+    public async Task<List<SimulacaoRelatorioDiarioDTO>> GetAllByDataProdutoTipoAsync(DateTime dataReferencia, int coProduto, TipoSimulacao tipo)
+    {
+        var sql = @"
+            SELECT 
+                ss.CO_PRODUTO AS codigoProduto,
+                ss.NO_PRODUTO AS descricaoProduto,
+                SUM(ss.VALOR_DESEJADO) AS valorTotalDesejado,
+                AVG(p.VALOR_JUROS) AS taxaMediaJuro,
+                AVG(p.VALOR_PRESTACAO) AS valorMedioPrestacao,
+                SUM(p.VALOR_PRESTACAO) AS valorTotalCredito
+            FROM SIMULACAO s
+            LEFT JOIN PARCELAS p ON s.ID = p.SIMULACAO_ID
+            LEFT JOIN SOLICITACAO_SIMULACAO ss ON ss.ID = s.SOLICITACAO_ID
+            WHERE DATE(ss.DATA_CRIACAO) = @Data AND ss.CO_PRODUTO = @CoProduto AND s.TIPO = @Tipo
+            GROUP BY s.ID, ss.ID, s.TIPO, ss.PRAZO
+            ORDER BY s.ID;
+        ";
+
+        var simulacoes = (await _db.QueryAsync<SimulacaoRelatorioDiarioDTO>(
+            sql, new { Data = dataReferencia.Date, CoProduto = coProduto, Tipo = tipo.ToString() })
+        ).ToList();
+
+        return simulacoes;
+    }
+
+    public async Task<int> InserirSimulacaoCompletaAsync(decimal valorDesejado, int prazo, int coProduto, string nomeProduto, List<ResultadoSimulacaoDTO> resultadosSimulacoes)
     {
         _db.Open();
         using var transaction = _db.BeginTransaction();
@@ -67,8 +92,8 @@ public class SimulacaoRepository
         try
         {
             var solicitacaoSql = @"
-                INSERT INTO SOLICITACAO_SIMULACAO (PRAZO, VALOR_DESEJADO, DATA_CRIACAO)
-                VALUES (@Prazo, @ValorDesejado, NOW())
+                INSERT INTO SOLICITACAO_SIMULACAO (PRAZO, VALOR_DESEJADO, DATA_CRIACAO, CO_PRODUTO, NO_PRODUTO)
+                VALUES (@Prazo, @ValorDesejado, NOW(), @CoProduto, @NomeProduto)
                 RETURNING ID;
             ";
 
@@ -97,6 +122,7 @@ public class SimulacaoRepository
             }
 
             transaction.Commit();
+            return solicitacaoId;
         }
         catch
         {
