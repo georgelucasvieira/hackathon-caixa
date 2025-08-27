@@ -46,7 +46,6 @@ app.MapPost("/simulacoes", async (ProdutoRepository produtoRepo, SimulacaoServic
     var response = await simulacaoService.RealizarSimulacao(request);
     return Results.Ok(response);
 })
-.WithName("FazerSimulacao")
 .WithOpenApi();
 
 app.MapGet("/simulacoes", async (SimulacaoRepository simulacaoRepo, int? pagina, int? limite) =>
@@ -54,7 +53,6 @@ app.MapGet("/simulacoes", async (SimulacaoRepository simulacaoRepo, int? pagina,
     var simulacoes = await simulacaoRepo.GetAllByTipoPaginatedAsync(pagina ?? 1, limite ?? 10, TipoSimulacao.PRICE);
     return Results.Ok(simulacoes);
 })
-.WithName("ObterSimulacoes")
 .WithOpenApi();
 
 //bonus/opcional
@@ -62,14 +60,12 @@ app.MapGet("/simulacoes/detalhe/{id}", async (int id) =>
 {
     return Results.Ok();
 })
-.WithName("ObterDetalheSimulacao")
 .WithOpenApi();
 
 app.MapGet("/simulacoes/relatorio", async (DateTime dataReferencia) =>
 {
     Results.Ok();
 })
-.WithName("ObterRelatorio")
 .WithOpenApi();
 
 app.MapGet("/telemetria/metricas", async (TelemetriaRepository telemetriaRepo, DateTime dataReferencia) =>
@@ -82,7 +78,6 @@ app.MapGet("/telemetria/metricas", async (TelemetriaRepository telemetriaRepo, D
     };
     return Results.Ok(retorno);
 })
-.WithName("Telemetria")
 .WithOpenApi();
 
 app.Run();
